@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `rlp` `Decodable` for `Uint` accepting leading zeros, lists and the two-byte form of single bytes below `0x80` ([#686])
 - Undefined behavior when extracting a `Uint` from a non-`int` Python object with the `pyo3` feature, which now raises `TypeError` ([#690])
 - Wrong `_PyLong_AsByteArray` call on Python 3.13 and later when extracting a `Uint` with the `pyo3` feature ([#690])
+- Wrong `wrapping_from` result and `ValueNegative` payload for negative integers narrower than the `Uint` ([#701])
 - Wrong `CompactRefUint::size_hint` for `Uint`s other than 256 bits, which made SCALE compact encoding panic for wider ones ([#702])
 
 [#681]: https://github.com/alloy-rs/ruint/pull/681
@@ -39,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#689]: https://github.com/alloy-rs/ruint/pull/689
 [#690]: https://github.com/alloy-rs/ruint/pull/690
 [#697]: https://github.com/alloy-rs/ruint/pull/697
+[#701]: https://github.com/alloy-rs/ruint/pull/701
 [#702]: https://github.com/alloy-rs/ruint/pull/702
 
 ## [1.21.0] - 2026-10-20
