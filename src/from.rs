@@ -499,12 +499,8 @@ macro_rules! impl_from_signed_int {
             #[inline]
             fn try_from(value: $int) -> Result<Self, Self::Error> {
                 if value.is_negative() {
-                    Err(match Self::try_from(value as $uint) {
-                        Ok(n) | Err(ToUintError::ValueTooLarge(_, n)) => {
-                            ToUintError::ValueNegative(BITS, n)
-                        }
-                        _ => unreachable!(),
-                    })
+                    let wrapped = Self::wrapping_from(value.unsigned_abs()).wrapping_neg();
+                    Err(ToUintError::ValueNegative(BITS, wrapped))
                 } else {
                     Self::try_from(value as $uint)
                 }
@@ -1001,6 +997,17 @@ mod test {
             u64::try_from(x),
             Err(FromUintError::Overflow(65, 1967194, u64::MAX))
         );
+    }
+
+    #[test]
+    fn test_negative_int_wraps() {
+        const_for!(BITS in SIZES {
+            const LIMBS: usize = nlimbs(BITS);
+            type U = Uint<BITS, LIMBS>;
+            assert_eq!(U::try_from(-1_i8), Err(ToUintError::ValueNegative(BITS, U::MAX)));
+            assert_eq!(U::wrapping_from(-1_i64), U::wrapping_from(-1.0_f64));
+            assert_eq!(U::wrapping_from(i128::MIN), U::wrapping_from(1_u128 << 127).wrapping_neg());
+        });
     }
 
     #[test]
