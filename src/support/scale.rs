@@ -116,7 +116,7 @@ impl<const BITS: usize, const LIMBS: usize> Encode for CompactRefUint<'_, BITS, 
             0..=6 => 1,
             7..=14 => 2,
             15..=30 => 4,
-            _ => (32 - self.0.leading_zeros() / 8) + 1,
+            bits => bits.div_ceil(8) + 1,
         }
     }
 
@@ -297,6 +297,20 @@ mod tests {
                     }
                 }
             });
+        });
+    }
+
+    #[test]
+    fn test_scale_compact_size_hint() {
+        const_for!(BITS in [31, 64, 65, 128, 256, 384, 512, 535] {
+            const LIMBS: usize = nlimbs(BITS);
+            type U = Uint<BITS, LIMBS>;
+            for bits in 0..=BITS {
+                let value = U::MAX >> (BITS - bits);
+                let mut encoded = Vec::new();
+                CompactRefUint(&value).encode_to(&mut encoded);
+                assert_eq!(CompactRefUint(&value).size_hint(), encoded.len(), "{value}");
+            }
         });
     }
 
